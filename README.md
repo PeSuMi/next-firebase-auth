@@ -208,7 +208,7 @@ export default withAuthUser()(Demo)
 -----
 #### `init(config)`
 
-Initializes `next-firebase-auth`, taking a [config](#config) object. Must be called before calling any other method.
+Initializes `next-firebase-auth`, taking a [config](#config) object. **Must be called** before calling any other method.
 
 #### `withAuthUser({ ...options })(PageComponent)`
 
@@ -443,7 +443,7 @@ Settings used for auth cookies. We use [`cookies`](https://github.com/pillarjs/c
 
 Properties include:
 * `name`: Used as a base for cookie names: if `name` is set to "MyExample", cookies will be named `MyExample.AuthUser` and `MyExample.AuthUserTokens` (plus `MyExample.AuthUser.sig` and `MyExample.AuthUserTokens.sig` if cookies are signed). **Required.**
-* `keys`: Used to sign cookies, as described in [`cookies`](https://github.com/pillarjs/cookies#cookies--new-cookies-request-response--options--). **Required** unless `signed` is set to `false`.
+* `keys`: An array of strings that will be used to sign cookies; for instance, `['xD$WVv3qrP3ywY', '2x6#msoUeNhVHr']`. As these strings are secrets, provide them via secret environment variables, such as `[ process.env.COOKIE_SECRET_CURRENT, process.env.COOKIE_SECRET_PREVIOUS ]`. The `keys` array is passed to the [Keygrip](https://www.npmjs.com/package/keygrip) constructor as described in [the `cookies` package](https://github.com/pillarjs/cookies#cookies--new-cookies-request-response--options--). **Required** unless `signed` is set to `false`.
 * [All options for `cookies.set`](https://github.com/pillarjs/cookies#cookiesset-name--value---options--).
 
 The `keys` value cannot be defined on the client side and should live in a secret environment variable.
@@ -791,6 +791,7 @@ In addition, please double-check your server logs for any errors to ensure the F
 We expect some apps will need some features that are not currently available:
 
 * **Supporting custom session logic:** Currently, this package doesn't allow using a custom cookie or session module. Some developers may need this flexibility to, for example, keep auth user data in server-side session storage.
+* **Setting a single auth cookie:** This package currently sets more than one cookie to store authentication state. It's not currently possible to use a single cookie with a customized name: [#190](https://github.com/gladly-team/next-firebase-auth/issues/190)
 
 We'd love to hear your feedback on these or other features. Please feel free to [open a discussion](https://github.com/gladly-team/next-firebase-auth/discussions)!
 
