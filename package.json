@@ -1,5 +1,5 @@
 {
-  "name": "next-firebase-auth",
+  "name": "@pesumi/next-firebase-auth",
   "version": "0.13.2",
   "description": "Simple Firebase authentication for all Next.js rendering strategies",
   "keywords": [
@@ -13,8 +13,11 @@
   "browser": "build/index.browser.js",
   "main": "build/index.node.js",
   "types": "build/index.d.ts",
-  "repository": "git@github.com:gladly-team/next-firebase-auth.git",
-  "author": "Gladly Team",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pesumi/next-firebase-auth.git"
+  },
+  "author": "pesumi",
   "license": "MIT",
   "scripts": {
     "build": "npm-run-all -s build:clean build:src",
@@ -90,5 +93,8 @@
   },
   "files": [
     "/build"
-  ]
+  ],
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  }
 }
