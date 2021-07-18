@@ -36,147 +36,149 @@ import isClientSide from 'src/isClientSide'
  *   `AuthAction.SHOW_LOADER`.
  * @return {Function} A function that takes a child component
  */
-const withAuthUser = ({
-  whenAuthed = AuthAction.RENDER,
-  whenUnauthedBeforeInit = AuthAction.RENDER,
-  whenUnauthedAfterInit = AuthAction.RENDER,
-  appPageURL = null,
-  authPageURL = null,
-  LoaderComponent = null,
-} = {}) => (ChildComponent) => {
-  const WithAuthUserHOC = (props) => {
-    const { AuthUserSerialized, ...otherProps } = props
-    const AuthUserFromServer = createAuthUser({
-      serializedAuthUser: AuthUserSerialized,
-    })
+const withAuthUser =
+  ({
+    whenAuthed = AuthAction.RENDER,
+    whenUnauthedBeforeInit = AuthAction.RENDER,
+    whenUnauthedAfterInit = AuthAction.RENDER,
+    appPageURL = null,
+    authPageURL = null,
+    LoaderComponent = null,
+  } = {}) =>
+  (ChildComponent) => {
+    const WithAuthUserHOC = (props) => {
+      const { AuthUserSerialized, ...otherProps } = props
+      const AuthUserFromServer = createAuthUser({
+        serializedAuthUser: AuthUserSerialized,
+      })
 
-    const {
-      user: firebaseUser,
-      claims,
-      initialized: firebaseInitialized,
-    } = useFirebaseUser()
-    const AuthUserFromClient = createAuthUser({
-      firebaseUserClientSDK: firebaseUser,
-      clientInitialized: firebaseInitialized,
-      claims,
-    })
+      const {
+        user: firebaseUser,
+        claims,
+        initialized: firebaseInitialized,
+      } = useFirebaseUser()
+      const AuthUserFromClient = createAuthUser({
+        firebaseUserClientSDK: firebaseUser,
+        clientInitialized: firebaseInitialized,
+        claims,
+      })
 
-    // Set the AuthUser to values from the Firebase JS SDK user
-    // once it has initialized. On the server side and before the
-    // client-side SDK has initialized, use the AuthUser from the
-    // session.
-    const AuthUser = firebaseInitialized
-      ? AuthUserFromClient
-      : AuthUserFromServer
+      // Set the AuthUser to values from the Firebase JS SDK user
+      // once it has initialized. On the server side and before the
+      // client-side SDK has initialized, use the AuthUser from the
+      // session.
+      const AuthUser = firebaseInitialized
+        ? AuthUserFromClient
+        : AuthUserFromServer
 
-    const isAuthed = !!AuthUser.id
-    const isInitialized = AuthUser.clientInitialized
+      const isAuthed = !!AuthUser.id
+      const isInitialized = AuthUser.clientInitialized
 
-    // Redirect to the app if the user is authed and the "whenAuthed"
-    // argument is set to redirect to the app.
-    const shouldRedirectToApp =
-      isAuthed && whenAuthed === AuthAction.REDIRECT_TO_APP
+      // Redirect to the app if the user is authed and the "whenAuthed"
+      // argument is set to redirect to the app.
+      const shouldRedirectToApp =
+        isAuthed && whenAuthed === AuthAction.REDIRECT_TO_APP
 
-    // Redirect to the login page if the user is not authed and,
-    // considering whether the Firebase JS SDK is initialized, the
-    // "when unauthed" settings inform us to redirect.
-    const shouldRedirectToLogin =
-      !isAuthed &&
-      ((!isInitialized &&
-        whenUnauthedBeforeInit === AuthAction.REDIRECT_TO_LOGIN) ||
-        (isInitialized &&
-          whenUnauthedAfterInit === AuthAction.REDIRECT_TO_LOGIN))
+      // Redirect to the login page if the user is not authed and,
+      // considering whether the Firebase JS SDK is initialized, the
+      // "when unauthed" settings inform us to redirect.
+      const shouldRedirectToLogin =
+        !isAuthed &&
+        ((!isInitialized &&
+          whenUnauthedBeforeInit === AuthAction.REDIRECT_TO_LOGIN) ||
+          (isInitialized &&
+            whenUnauthedAfterInit === AuthAction.REDIRECT_TO_LOGIN))
 
-    const router = useRouter()
-    const redirectToApp = useCallback(() => {
-      const appRedirectDestination = appPageURL || getConfig().appPageURL
-      if (!appRedirectDestination) {
-        throw new Error(
-          'The "appPageURL" config setting must be set when using `REDIRECT_TO_APP`.'
-        )
-      }
+      const router = useRouter()
+      const redirectToApp = useCallback(() => {
+        const appRedirectDestination = appPageURL || getConfig().appPageURL
+        if (!appRedirectDestination) {
+          throw new Error(
+            'The "appPageURL" config setting must be set when using `REDIRECT_TO_APP`.'
+          )
+        }
 
-      const destination =
-        typeof appRedirectDestination === 'string'
-          ? appRedirectDestination
-          : appRedirectDestination({ ctx: undefined, AuthUser })
+        const destination =
+          typeof appRedirectDestination === 'string'
+            ? appRedirectDestination
+            : appRedirectDestination({ ctx: undefined, AuthUser })
 
-      if (!destination || typeof destination !== 'string') {
-        throw new Error(
-          'The "appPageURL" must be set to a non-empty string or resolve to a non-empty string'
-        )
-      }
-      router.replace(destination)
-    }, [router, AuthUser])
-    const redirectToLogin = useCallback(() => {
-      const authRedirectDestination = authPageURL || getConfig().authPageURL
-      if (!authRedirectDestination) {
-        throw new Error(
-          'The "authPageURL" config setting must be set when using `REDIRECT_TO_LOGIN`.'
-        )
-      }
+        if (!destination || typeof destination !== 'string') {
+          throw new Error(
+            'The "appPageURL" must be set to a non-empty string or resolve to a non-empty string'
+          )
+        }
+        router.replace(destination)
+      }, [router, AuthUser])
+      const redirectToLogin = useCallback(() => {
+        const authRedirectDestination = authPageURL || getConfig().authPageURL
+        if (!authRedirectDestination) {
+          throw new Error(
+            'The "authPageURL" config setting must be set when using `REDIRECT_TO_LOGIN`.'
+          )
+        }
 
-      const destination =
-        typeof authRedirectDestination === 'string'
-          ? authRedirectDestination
-          : authRedirectDestination({ ctx: undefined, AuthUser })
+        const destination =
+          typeof authRedirectDestination === 'string'
+            ? authRedirectDestination
+            : authRedirectDestination({ ctx: undefined, AuthUser })
 
-      if (!destination || typeof destination !== 'string') {
-        throw new Error(
-          'The "authPageURL" must be set to a non-empty string or resolve to a non-empty string'
-        )
-      }
-      router.replace(destination)
-    }, [router, AuthUser])
+        if (!destination || typeof destination !== 'string') {
+          throw new Error(
+            'The "authPageURL" must be set to a non-empty string or resolve to a non-empty string'
+          )
+        }
+        router.replace(destination)
+      }, [router, AuthUser])
 
-    useEffect(() => {
-      // Only redirect on the client side. To redirect server-side,
-      // use `withAuthUserSSR` or `withAuthUserTokenSSR`.
-      if (!isClientSide()) {
-        return
-      }
-      if (shouldRedirectToApp) {
-        redirectToApp()
-      } else if (shouldRedirectToLogin) {
-        redirectToLogin()
-      }
-    }, [
-      shouldRedirectToApp,
-      shouldRedirectToLogin,
-      redirectToApp,
-      redirectToLogin,
-    ])
+      useEffect(() => {
+        // Only redirect on the client side. To redirect server-side,
+        // use `withAuthUserSSR` or `withAuthUserTokenSSR`.
+        if (!isClientSide()) {
+          return
+        }
+        if (shouldRedirectToApp) {
+          redirectToApp()
+        } else if (shouldRedirectToLogin) {
+          redirectToLogin()
+        }
+      }, [
+        shouldRedirectToApp,
+        shouldRedirectToLogin,
+        redirectToApp,
+        redirectToLogin,
+      ])
 
-    // If we are in the process of redirecting, don't render
-    // anything.
-    const isRedirecting = shouldRedirectToApp || shouldRedirectToLogin
-    if (isRedirecting) {
-      return null
-    }
-
-    // If the user is not authed and the Firebase JS SDK has
-    // not yet initialized, optionally show a "loading" component
-    // or return null rather than rendering.
-    if (!isInitialized && !isAuthed) {
-      if (whenUnauthedBeforeInit === AuthAction.SHOW_LOADER) {
-        return LoaderComponent ? <LoaderComponent /> : null
-      }
-      if (whenUnauthedBeforeInit === AuthAction.RETURN_NULL) {
+      // If we are in the process of redirecting, don't render
+      // anything.
+      const isRedirecting = shouldRedirectToApp || shouldRedirectToLogin
+      if (isRedirecting) {
         return null
       }
+
+      // If the user is not authed and the Firebase JS SDK has
+      // not yet initialized, optionally show a "loading" component
+      // or return null rather than rendering.
+      if (!isInitialized && !isAuthed) {
+        if (whenUnauthedBeforeInit === AuthAction.SHOW_LOADER) {
+          return LoaderComponent ? <LoaderComponent /> : null
+        }
+        if (whenUnauthedBeforeInit === AuthAction.RETURN_NULL) {
+          return null
+        }
+      }
+
+      return (
+        <AuthUserContext.Provider value={AuthUser}>
+          {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+          <ChildComponent {...otherProps} />
+        </AuthUserContext.Provider>
+      )
     }
 
-    return (
-      <AuthUserContext.Provider value={AuthUser}>
-        {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-        <ChildComponent {...otherProps} />
-      </AuthUserContext.Provider>
-    )
+    WithAuthUserHOC.displayName = 'WithAuthUserHOC'
+
+    return WithAuthUserHOC
   }
-
-  WithAuthUserHOC.displayName = 'WithAuthUserHOC'
-
-  return WithAuthUserHOC
-}
 
 export default withAuthUser
