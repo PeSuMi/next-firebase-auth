@@ -1,6 +1,6 @@
 {
   "name": "@pesumi/next-firebase-auth",
-  "version": "0.13.2",
+  "version": "0.13.3-pesumi.1",
   "description": "Simple Firebase authentication for all Next.js rendering strategies",
   "keywords": [
     "Next",
@@ -60,8 +60,8 @@
     "eslint-plugin-prettier": "^3.3.0",
     "eslint-plugin-react": "^7.21.5",
     "eslint-plugin-react-hooks": "^4.2.0",
-    "firebase": "^9.0.0-beta.6",
-    "firebase-admin": "^9.4.2",
+    "firebase": "9.0.1",
+    "firebase-admin": "9.11.1",
     "jest": "^26.6.3",
     "jsdom": "^16.3.0",
     "mockdate": "^3.0.2",
